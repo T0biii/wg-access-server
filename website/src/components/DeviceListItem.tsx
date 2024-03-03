@@ -15,6 +15,7 @@ import { grpc } from '../Api';
 import { observer } from 'mobx-react';
 import { confirm } from './Present';
 import { IconButton } from '@mui/material';
+import SnackBar from './SnackBar';
 
 interface Props {
   device: Device.AsObject;
@@ -22,7 +23,17 @@ interface Props {
 }
 
 export const DeviceListItem = observer(
+  
   class DeviceListItem extends React.Component<Props> {
+
+    state = {
+      showSnackbar: false,
+    };
+
+    handleCloseSnackbar = () => {
+      this.setState({ showSnackbar: false });
+    };
+
     removeDevice = async () => {
       if (await confirm('Are you sure you want to delete ' + this.props.device.name + '?')) {
         try {
@@ -30,6 +41,7 @@ export const DeviceListItem = observer(
             name: this.props.device.name,
           });
           this.props.onRemove();
+          this.setState({ showSnackbar: true });
         } catch {
           window.alert('api request failed');
         }
@@ -98,6 +110,7 @@ export const DeviceListItem = observer(
               </tbody>
             </table>
           </CardContent>
+          <SnackBar message={this.props.device.name + " successfully deleted"} color='green' open={this.state.showSnackbar} onClose={this.handleCloseSnackbar} />
         </Card>
       );
     }
