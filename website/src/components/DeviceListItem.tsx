@@ -110,7 +110,7 @@ export const DeviceListItem = observer(
               </tbody>
             </table>
           </CardContent>
-          <SnackBar message={this.props.device.name + " successfully deleted"} color='green' open={this.state.showSnackbar} onClose={this.handleCloseSnackbar} />
+          <SnackBar message={this.props.device.name + " successfully deleted"} severity='success' open={this.state.showSnackbar} onClose={this.handleCloseSnackbar} />
         </Card>
       );
     }
