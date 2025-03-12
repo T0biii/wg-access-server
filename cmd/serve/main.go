@@ -408,21 +408,29 @@ func detectDNSUpstream(ipv4Enabled, ipv6Enabled bool) []string {
 }
 
 func detectDefaultInterface() string {
+	logrus.Info("Starting detectDefaultInterface function")
 	links, err := netlink.LinkList()
 	if err != nil {
 		logrus.Warn(errors.Wrap(err, "failed to list network interfaces"))
 		return ""
 	}
+	logrus.Infof("Found %d network interfaces", len(links))
 	for _, link := range links {
+		logrus.Infof("Checking interface: %s (type: %s)", link.Attrs().Name, link.Type())
 		// First try IPv4, then IPv6, hope both have the same default interface
 		for family := range []int{4, 6} {
+			logrus.Infof("Checking routes for family IPv%d on interface %s", family, link.Attrs().Name)
 			routes, err := netlink.RouteList(link, family)
 			if err != nil {
 				logrus.Warn(errors.Wrapf(err, "failed to list routes for interface %s", link.Attrs().Name))
 				return ""
 			}
-			for _, route := range routes {
+			logrus.Infof("Found %d routes for IPv%d on interface %s", len(routes), family, link.Attrs().Name)
+
+			for i, route := range routes {
+				logrus.Infof("Route %d: Dst=%v, Src=%v, Gw=%v", i, route.Dst, route.Src, route.Gw)
 				if route.Dst == nil {
+					logrus.Infof("Found default route on interface %s", link.Attrs().Name)
 					return link.Attrs().Name
 				}
 			}
