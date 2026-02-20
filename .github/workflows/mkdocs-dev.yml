@@ -1,0 +1,32 @@
+name: Publish docs via GitHub Pages (Dev)
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  mkdocs-dev:
+    name: Deploy docs (dev)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - run: git fetch --prune --unshallow --tags
+      - run: pipx install poetry
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.x"
+          cache: "poetry"
+
+      - run: poetry install --only doc
+      - name: Configure git for gh-pages
+        run: |
+          git config --global user.name "ffmuc-bot[bot]"
+          git config --global user.email "190151896+ffmuc-bot[bot]@users.noreply.github.com"
+
+      - name: Build and deploy documentation (dev)
+        run: poetry run mike deploy --push dev
